@@ -25,9 +25,15 @@ function UpdateConfigFile {
 
 UpdateConfigFile
 
-# Ensure the operation succeeded by checking for the set_real_ip line
-while ! grep set_real_ip /etc/nginx/conf.d/cloudflare-real-ip.conf > /dev/null;
+# Ensure the operation succeeded by checking for
+    # IPv4 address definitions
+    # IPv6 definitions
+    # This will ensure set_real_ip directives for both address types
+while ! grep -Pq '\d{1,3}\.' $CLOUDFLARE_FILE_PATH && grep -Pq '\w{1,4}\:' $CLOUDFLARE_FILE_PATH > /dev/null;
 do
     sleep 3
     UpdateConfigFile
 done
+
+#test configuration and reload nginx
+nginx -t && systemctl reload nginx
